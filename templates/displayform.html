@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}}</title>
+</head>
+<body>
+  <main>
+    <h1>{{.Title}}</h1>
+
+    {{range .Questions}}
+      <section>
+        <h2>{{.Question}}</h2>
+        <label>
+          Response
+          <textarea>{{.Response}}</textarea>
+        </label>
+      </section>
+    {{end}}
+
+    <form action="/" method="get">
+      <button type="submit">Home</button>
+    </form>
+  </main>
+</body>
+</html>

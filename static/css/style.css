@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+}
+
+main {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+label,
+input,
+textarea,
+button {
+  display: block;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+}
+
+textarea {
+  min-height: 6rem;
+}

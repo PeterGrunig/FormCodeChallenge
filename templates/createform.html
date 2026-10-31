@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Create form</title>
+</head>
+<body>
+  <form action="/createPost" method="post">
+    <label for="title">Title</label>
+    <input id="title" name="title" type="text" value="{{.Title}}" required>
+
+    <label for="question">Question</label>
+    <textarea id="question" name="question" required></textarea>
+
+    <button type="submit">Save question</button>
+  </form>
+  <form action="/displayForm" method="post">
+    <button type="submit">Preview Form</button>
+  </form>
+</body>
+</html>
