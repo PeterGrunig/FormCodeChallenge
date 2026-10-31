@@ -67,7 +67,7 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, form)
 	if err != nil {
 		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
 		return
