@@ -7,7 +7,8 @@ import (
 	"log"
 	"strconv"
 	"math/rand"
-
+	"fmt"
+	"encoding/json"
 )
 
 
@@ -29,6 +30,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // Handler for the create form page
 // Generates the create form template
+// If the form ID is 0, it creates a new form with a random ID and adds it to the store
 func createForm(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
@@ -193,6 +195,60 @@ func viewResponses(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func startFromTemplate(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid form ID", http.StatusBadRequest)
+		return
+	}
+
+	form := Store.Forms[id]
+	if form == nil {
+    	form = &Form{ID: id, Title: "New Form from Template"}
+    	Store.Forms[id] = form
+		log.Println("Created new form with ID:", form.ID)
+	}
+
+	form.Title = "New Form from Template"
+
+	// Get three sameple questions to add to the form
+	for i := 0; i < 3; i++ {
+		resp, err := http.Get("https://uselessfacts.jsph.pl/api/v2/facts/random?language=en")
+	if err != nil {
+		http.Error(w, "Failed to fetch random fact" + err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+        fmt.Println("API error:", resp.Status)
+        return
+    }
+
+	var fact templateQuestion
+	err = json.NewDecoder(resp.Body).Decode(&fact)
+	if err != nil {
+		http.Error(w, "Failed to decode API response" + err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	form.Questions = append(form.Questions, Questions{Question: fact.Question})
+	}
+
+	ts, err := template.ParseFiles("templates/createform.html")
+	if err != nil {
+		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.Execute(w, form)
+	if err != nil {
+		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 // Used to debug the forms

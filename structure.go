@@ -19,3 +19,7 @@ type Form struct {
 type FormStore struct {
 	Forms map[int]*Form
 }
+
+type templateQuestion struct {
+	Question string `json:"text"`
+}

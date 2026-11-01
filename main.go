@@ -27,6 +27,9 @@ func main() {
 	mux.HandleFunc("/respondToForm", respondToForm)
 	mux.HandleFunc("/respondToFormPost", respondToFormPost)
 	mux.HandleFunc("/viewResponses", viewResponses)
+
+	mux.HandleFunc("/startFromTemplate", startFromTemplate)
+	
 	
 	log.Println("Starting server on :4000")
 	err := http.ListenAndServe(":4000", mux)
