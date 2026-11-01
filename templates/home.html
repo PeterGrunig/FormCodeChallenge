@@ -13,6 +13,15 @@
     <p>You can view responses</p>
     <p>And you can fill out forms!</p>
 
+    <h2>Current forms</h2>
+    <ul>
+      {{range .}}
+        <li>{{.Title}}</li>
+      {{else}}
+        <li>No forms yet</li>
+      {{end}}
+    </ul>
+
     <form action="/create" method="post">
       
       <button type="submit">New form</button>

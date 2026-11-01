@@ -17,7 +17,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, Store.Forms)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -85,7 +85,7 @@ func displayForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, Store.Forms[1])
+	err = ts.Execute(w, Store.Forms)
 	if err != nil {
 		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
 		return
