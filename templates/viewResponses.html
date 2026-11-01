@@ -4,26 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Responses: {{.Title}}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <main>
-    <h1>Responses: {{.Title}}</h1>
+    <header>
+      <p class="eyebrow">Response summary</p>
+      <h1>{{.Title}}</h1>
+      <p class="intro">Responses collected for each question.</p>
+    </header>
 
     {{range .Questions}}
-      <section>
+      <section class="question-card">
         <h2>{{.Question}}</h2>
-        <ul>
+        <ul class="response-list">
           {{range .Response}}
             <li>{{.}}</li>
           {{else}}
-            <li>No responses yet</li>
+            <li class="empty-state">No responses yet</li>
           {{end}}
         </ul>
       </section>
+
+    {{end}}
       <form action="/" method="get">
         <button type="submit">Home</button>
       </form>
-    {{end}}
   </main>
 </body>
 </html>

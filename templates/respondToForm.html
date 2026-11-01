@@ -4,16 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <main>
-    <h1>{{.Title}}</h1>
+    <header>
+      <p class="eyebrow">Your response</p>
+      <h1>{{.Title}}</h1>
+      <p class="intro">Answer each question, then save your responses.</p>
+    </header>
 
     <form action="/respondToFormPost" method="post">
       <input type="hidden" name="formID" value="{{.ID}}">
 
       {{range $index, $question := .Questions}}
-        <section>
+        <section class="question-card">
           <label for="response-{{$index}}">{{$question.Question}}</label>
           <textarea id="response-{{$index}}" name="responses[{{$index}}]" rows="3"></textarea>
         </section>

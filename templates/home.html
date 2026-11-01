@@ -8,31 +8,42 @@
 </head>
 <body>
   <main>
-    <h1>Form Forge</h1>
-    <p> Welcome to Form Forge, you can create a template or use an existing one!</p>
-    <p>You can view responses</p>
-    <p>And you can fill out forms!</p>
+    <header>
+      <p class="eyebrow">Your workspace</p>
+      <h1>Form Forge</h1>
+      <p class="intro">Create a form, collect responses, and review everything in one place.</p>
+    </header>
 
-    <h2>Current forms</h2>
-    <ul>
+    <section class="forms-panel">
+      <div class="panel-heading">
+        <h2>Current forms</h2>
+      </div>
+      <ul class="form-list">
       {{range .}}
-        <li>{{.Title}}</li>
-        <form action="/displayForm?id={{.ID}}" method="post">
-          <button type="submit">View/Edit Form</button>
-        </form>
-        <form action="/respondToForm?id={{.ID}}" method="post">
-          <button type="submit">Fill out form</button>
-        </form>
-        <form action="/viewResponses?id={{.ID}}" method="post">
-          <button type="submit">View Responses</button>
-        </form>
+        <li class="form-item">
+          <div>
+            <h3>{{.Title}}</h3>
+            <p>Form ID: {{.ID}}</p>
+          </div>
+          <div class="actions">
+            <form action="/displayForm?id={{.ID}}" method="post">
+              <button class="button-secondary" type="submit">View / edit</button>
+            </form>
+            <form action="/respondToForm?id={{.ID}}" method="post">
+              <button type="submit">Fill out form</button>
+            </form>
+            <form action="/viewResponses?id={{.ID}}" method="post">
+              <button class="button-secondary" type="submit">View responses</button>
+            </form>
+          </div>
+        </li>
       {{else}}
-        <li>No forms yet</li>
+        <li class="empty-state">No forms yet. Create one to get started.</li>
       {{end}}
-    </ul>
+      </ul>
+    </section>
 
-    <form action="/create?id=0" method="post">
-      
+    <form class="new-form" action="/create?id=0" method="post">
       <button type="submit">New form</button>
     </form>
   </main>

@@ -16,6 +16,7 @@ func main() {
 	
 	// Create the server mux
 	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	
 	// Register for home page, create form page, and create form post handler
 	mux.HandleFunc("/", home)

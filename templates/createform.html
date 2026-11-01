@@ -2,36 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Create form</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <main>
-    <h1>Create form</h1>
+    <header>
+      <p class="eyebrow">Form builder</p>
+      <h1>Create your form</h1>
+      <p class="intro">Give your form a title, then add questions one at a time.</p>
+    </header>
 
     {{if .}}
       {{if .Questions}}
-        <h2>Questions</h2>
-        <ol>
-          {{range .Questions}}
-            <li>{{.Question}}</li>
-          {{end}}
-        </ol>
+        <section class="panel">
+          <h2>Questions so far</h2>
+          <ol class="question-list">
+            {{range .Questions}}
+              <li>{{.Question}}</li>
+            {{end}}
+          </ol>
+        </section>
       {{end}}
     {{end}}
 
-  <form action="/createPost?id={{.ID}}" method="post">
-    <label for="title">Title</label>
-    <input id="title" name="title" type="text" value="{{if .}}{{.Title}}{{end}}" required>
+    <form class="form-stack" action="/createPost?id={{.ID}}" method="post">
+      <label for="title">Form title</label>
+      <input id="title" name="title" type="text" value="{{if .}}{{.Title}}{{end}}" placeholder="For example, Customer feedback" required>
 
-    <label for="question">New question</label>
-    <textarea id="question" name="question" rows="3" required></textarea>
+      <label for="question">New question</label>
+      <textarea id="question" name="question" rows="3" placeholder="Write a question for your respondents" required></textarea>
 
-    <button type="submit">Save question</button>
-  </form>
+      <button type="submit">Save question</button>
+    </form>
 
-  <form action="/displayForm?id={{.ID}}" method="post">
-    <button type="submit">Preview Form</button>
-  </form>
+    <div class="page-actions">
+      <form action="/displayForm?id={{.ID}}" method="post">
+        <button class="button-secondary" type="submit">Preview form</button>
+      </form>
+    </div>
   </main>
 </body>
 </html>

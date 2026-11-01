@@ -4,13 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <main>
-    <h1>{{.Title}}</h1>
-    <p> View Form Only. Will not save responses </p>
+    <header>
+      <p class="eyebrow">Form preview</p>
+      <h1>{{.Title}}</h1>
+      <p class="intro">Review the questions and answer fields before sharing your form.</p>
+    </header>
     {{range .Questions}}
-      <section>
+      <section class="question-card">
         <h2>{{.Question}}</h2>
         <label>
           Response
@@ -19,13 +23,14 @@
       </section>
     {{end}}
 
-    <form action="/create?id={{.ID}}" method="post">
-      <button type="submit">Edit Form</button>
-    </form>
-
-    <form action="/" method="get">
-      <button type="submit">Save Form</button>
-    </form>
+    <div class="page-actions">
+      <form action="/create?id={{.ID}}" method="post">
+        <button class="button-secondary" type="submit">Edit form</button>
+      </form>
+      <form action="/" method="get">
+        <button type="submit">Save form</button>
+      </form>
+    </div>
   </main>
 </body>
 </html>
