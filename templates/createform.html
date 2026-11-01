@@ -5,17 +5,33 @@
   <title>Create form</title>
 </head>
 <body>
-  <form action="/createPost" method="post">
-    <label for="title">Title</label>
-    <input id="title" name="title" type="text" value="{{.Title}}" required>
+  <main>
+    <h1>Create form</h1>
 
-    <label for="question">Question</label>
-    <textarea id="question" name="question" required></textarea>
+    {{if .}}
+      {{if .Questions}}
+        <h2>Questions</h2>
+        <ol>
+          {{range .Questions}}
+            <li>{{.Question}}</li>
+          {{end}}
+        </ol>
+      {{end}}
+    {{end}}
+
+  <form action="/createPost?id={{.ID}}" method="post">
+    <label for="title">Title</label>
+    <input id="title" name="title" type="text" value="{{if .}}{{.Title}}{{end}}" required>
+
+    <label for="question">New question</label>
+    <textarea id="question" name="question" rows="3" required></textarea>
 
     <button type="submit">Save question</button>
   </form>
-  <form action="/displayForm" method="post">
+
+  <form action="/displayForm?id={{.ID}}" method="post">
     <button type="submit">Preview Form</button>
   </form>
+  </main>
 </body>
 </html>

@@ -4,7 +4,7 @@ package main
 // Has a question and response form
 type Questions struct {
 	Question string
-	Response string
+	Response []string
 }
 
 // Main struct for the form

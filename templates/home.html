@@ -17,12 +17,21 @@
     <ul>
       {{range .}}
         <li>{{.Title}}</li>
+        <form action="/displayForm?id={{.ID}}" method="post">
+          <button type="submit">View/Edit Form</button>
+        </form>
+        <form action="/respondToForm?id={{.ID}}" method="post">
+          <button type="submit">Fill out form</button>
+        </form>
+        <form action="/viewResponses?id={{.ID}}" method="post">
+          <button type="submit">View Responses</button>
+        </form>
       {{else}}
         <li>No forms yet</li>
       {{end}}
     </ul>
 
-    <form action="/create" method="post">
+    <form action="/create?id=0" method="post">
       
       <button type="submit">New form</button>
     </form>

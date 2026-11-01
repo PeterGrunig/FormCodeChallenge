@@ -8,19 +8,23 @@
 <body>
   <main>
     <h1>{{.Title}}</h1>
-
+    <p> View Form Only. Will not save responses </p>
     {{range .Questions}}
       <section>
         <h2>{{.Question}}</h2>
         <label>
           Response
-          <textarea>{{.Response}}</textarea>
+          <textarea rows="3"></textarea>
         </label>
       </section>
     {{end}}
 
+    <form action="/create?id={{.ID}}" method="post">
+      <button type="submit">Edit Form</button>
+    </form>
+
     <form action="/" method="get">
-      <button type="submit">Home</button>
+      <button type="submit">Save Form</button>
     </form>
   </main>
 </body>

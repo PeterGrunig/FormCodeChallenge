@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Responses: {{.Title}}</title>
+</head>
+<body>
+  <main>
+    <h1>Responses: {{.Title}}</h1>
+
+    {{range .Questions}}
+      <section>
+        <h2>{{.Question}}</h2>
+        <ul>
+          {{range .Response}}
+            <li>{{.}}</li>
+          {{else}}
+            <li>No responses yet</li>
+          {{end}}
+        </ul>
+      </section>
+      <form action="/" method="get">
+        <button type="submit">Home</button>
+      </form>
+    {{end}}
+  </main>
+</body>
+</html>

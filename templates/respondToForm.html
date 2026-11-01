@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}}</title>
+</head>
+<body>
+  <main>
+    <h1>{{.Title}}</h1>
+
+    <form action="/respondToFormPost" method="post">
+      <input type="hidden" name="formID" value="{{.ID}}">
+
+      {{range $index, $question := .Questions}}
+        <section>
+          <label for="response-{{$index}}">{{$question.Question}}</label>
+          <textarea id="response-{{$index}}" name="responses[{{$index}}]" rows="3"></textarea>
+        </section>
+      {{end}}
+
+      <button type="submit">Save responses</button>
+    </form>
+  </main>
+</body>
+</html>
