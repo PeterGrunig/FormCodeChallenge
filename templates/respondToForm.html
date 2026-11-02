@@ -19,7 +19,7 @@
 
       {{range $index, $question := .Questions}}
         <section class="question-card">
-          <label for="response-{{$index}}">{{$question.Question}}</label>
+          <label for="response-{{$index}}">Question {{$question.Order}}: {{$question.Question}}</label>
           <textarea id="response-{{$index}}" name="responses[{{$index}}]" rows="3"></textarea>
         </section>
       {{end}}

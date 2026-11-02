@@ -5,8 +5,7 @@
 A form builder that lets users create forms
 Users can fill out forms, edit them and see the results
 
-Forms are stored in local memory 
-All Handlers and buisness logic were written by me. 
+Forms are stored in local memory  
 
 ## Usage Instructions
 in the project folder, 
@@ -23,8 +22,16 @@ the TemplateQuestion Struct maps the text sections to a string.
 Then append that string to the form questions. 
 Repeats 3 times to get three randomly generated facts. (Ya I know facts aren't questions so it doesn't make any sense.)
 
+## If I had more time...
+- Multiple choice questions
+- Better state management
+- Refresh and rebuild handling. 
+- Question ordering is kind of buggy. 
+
+
 ## AI Usage
 Things AI implemented 
 - All styling
 - All of the html structures. 
 - API call error handling
+- Most of the question ordering. 

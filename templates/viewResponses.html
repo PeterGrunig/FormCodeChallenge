@@ -16,6 +16,7 @@
 
     {{range .Questions}}
       <section class="question-card">
+        <p class="eyebrow">Question {{.Order}}</p>
         <h2>{{.Question}}</h2>
         <ul class="response-list">
           {{range .Response}}

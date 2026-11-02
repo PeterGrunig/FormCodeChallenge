@@ -22,8 +22,9 @@ type localTemplateBundle struct {
 }
 
 type createFormPageData struct {
-	Form   *Form
-	Notice string
+	Form               *Form
+	Notice             string
+	NextQuestionNumber int
 }
 
 // Handler for the home page
@@ -60,7 +61,7 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 		Store.Forms[id] = form
 		log.Println("Created new form with ID:", form.ID)
 	}
-	orderQuestionsByOrder(Store.Forms[id])
+	sortQuestionsByOrder(Store.Forms[id])
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
@@ -68,7 +69,10 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, createFormPageData{Form: Store.Forms[id]})
+	err = ts.Execute(w, createFormPageData{
+		Form:               Store.Forms[id],
+		NextQuestionNumber: nextQuestionNumber(Store.Forms[id]),
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -88,8 +92,8 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order, err := strconv.Atoi(orderStr)
-	if err != nil {
-		http.Error(w, "Invalid question order", http.StatusBadRequest)
+	if err != nil || order < 1 {
+		http.Error(w, "Question number must be a positive integer", http.StatusBadRequest)
 		return
 	}
 	// Check if the form with the given ID already exists in the store
@@ -104,7 +108,7 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 	form.Title = title
 	//Append the new question to the form's questions slice
 	form.Questions = append(form.Questions, Questions{Question: question, Order: order})
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
@@ -112,7 +116,10 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, createFormPageData{Form: form})
+	err = ts.Execute(w, createFormPageData{
+		Form:               form,
+		NextQuestionNumber: nextQuestionNumber(form),
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -132,7 +139,7 @@ func displayForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Form not found", http.StatusNotFound)
 		return
 	}
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 	printForms(form)
 
 	ts, err := template.ParseFiles("templates/displayform.html")
@@ -161,7 +168,7 @@ func respondToForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Form not found", http.StatusNotFound)
 		return
 	}
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 	ts, err := template.ParseFiles("templates/respondToForm.html")
 	if err != nil {
 		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
@@ -188,7 +195,7 @@ func respondToFormPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Form not found", http.StatusNotFound)
 		return
 	}
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	for i := range form.Questions {
 		key := "responses[" + strconv.Itoa(i) + "]"
@@ -213,7 +220,7 @@ func viewResponses(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Form not found", http.StatusNotFound)
 		return
 	}
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	ts, err := template.ParseFiles("templates/viewresponses.html")
 	if err != nil {
@@ -243,7 +250,7 @@ func startFromTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form.Title = "New Form from Template"
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	questions, apiErr := fetchTemplateQuestions()
 	notice := ""
@@ -257,11 +264,12 @@ func startFromTemplate(w http.ResponseWriter, r *http.Request) {
 		notice = "The template API is unavailable. Local template questions are being used instead."
 	}
 
+	firstNewQuestionNumber := nextQuestionNumber(form)
 	for i := range questions {
-		questions[i].Order = len(form.Questions) + i
+		questions[i].Order = firstNewQuestionNumber + i
 	}
 	form.Questions = append(form.Questions, questions...)
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
@@ -269,7 +277,11 @@ func startFromTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, createFormPageData{Form: form, Notice: notice})
+	err = ts.Execute(w, createFormPageData{
+		Form:               form,
+		Notice:             notice,
+		NextQuestionNumber: nextQuestionNumber(form),
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -353,7 +365,7 @@ func deleteQuestion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Form not found", http.StatusNotFound)
 		return
 	}
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	if index < 0 || index >= len(form.Questions) {
 		http.Error(w, "Question index out of range", http.StatusBadRequest)
@@ -362,14 +374,14 @@ func deleteQuestion(w http.ResponseWriter, r *http.Request) {
 
 	// Remove the question at the specified index
 	form.Questions = append(form.Questions[:index], form.Questions[index+1:]...)
-	orderQuestionsByOrder(form)
+	sortQuestionsByOrder(form)
 
 	// Redirect back to the create form page
 	http.Redirect(w, r, fmt.Sprintf("/create?id=%d", id), http.StatusSeeOther)
 
 }
 
-func orderQuestionsByOrder(form *Form) {
+func sortQuestionsByOrder(form *Form) {
 	if form == nil {
 		return
 	}
@@ -377,9 +389,19 @@ func orderQuestionsByOrder(form *Form) {
 	sort.SliceStable(form.Questions, func(i, j int) bool {
 		return form.Questions[i].Order < form.Questions[j].Order
 	})
-	for i := range form.Questions {
-		form.Questions[i].Order = i
+}
+
+func nextQuestionNumber(form *Form) int {
+	next := 1
+	if form == nil {
+		return next
 	}
+	for _, question := range form.Questions {
+		if question.Order >= next {
+			next = question.Order + 1
+		}
+	}
+	return next
 }
 
 // Used to debug the forms
