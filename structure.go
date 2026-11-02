@@ -8,6 +8,7 @@ type Questions struct {
 	Order int 
 	MultiplyChoise bool
 	Required bool
+	MultipleChoiceOptions []string
 }
 
 // Main struct for the form

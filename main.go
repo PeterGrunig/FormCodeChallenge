@@ -29,7 +29,7 @@ func main() {
 	mux.HandleFunc("/viewResponses", viewResponses)
 
 	mux.HandleFunc("/startFromTemplate", startFromTemplate)
-	
+	mux.HandleFunc("/deleteQuestion", deleteQuestion)
 	
 	log.Println("Starting server on :4000")
 	err := http.ListenAndServe(":4000", mux)

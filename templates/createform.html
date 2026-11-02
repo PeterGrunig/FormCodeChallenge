@@ -23,8 +23,11 @@
         <section class="panel">
           <h2>Questions so far</h2>
           <ol class="question-list">
-            {{range .Form.Questions}}
-              <li>{{.Question}}</li>
+            {{range $index, $question := .Form.Questions}}
+              <li>{{$question.Question}}</li>
+              <form action="/deleteQuestion?id={{$.Form.ID}}&index={{$index}}" method="post">
+                <button class="button-secondary" type="submit">Delete</button>
+              </form>
             {{end}}
           </ol>
         </section>
@@ -37,6 +40,9 @@
 
       <label for="question">New question</label>
       <textarea id="question" name="question" rows="3" placeholder="Write a question for your respondents" required></textarea>
+
+      <label for="order">Question order</label>
+      <input id="order" name="order" type="number" value="{{if .Form}}{{len .Form.Questions}}{{else}}0{{end}}" min="0" required>
 
       <button type="submit">Save question</button>
     </form>
