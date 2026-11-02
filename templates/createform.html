@@ -14,12 +14,16 @@
       <p class="intro">Give your form a title, then add questions one at a time.</p>
     </header>
 
-    {{if .}}
-      {{if .Questions}}
+    {{if .Notice}}
+      <p class="notice" role="status">{{.Notice}}</p>
+    {{end}}
+
+    {{if .Form}}
+      {{if .Form.Questions}}
         <section class="panel">
           <h2>Questions so far</h2>
           <ol class="question-list">
-            {{range .Questions}}
+            {{range .Form.Questions}}
               <li>{{.Question}}</li>
             {{end}}
           </ol>
@@ -27,9 +31,9 @@
       {{end}}
     {{end}}
 
-    <form class="form-stack" action="/createPost?id={{.ID}}" method="post">
+    <form class="form-stack" action="/createPost?id={{.Form.ID}}" method="post">
       <label for="title">Form title</label>
-      <input id="title" name="title" type="text" value="{{if .}}{{.Title}}{{end}}" placeholder="For example, Customer feedback" required>
+      <input id="title" name="title" type="text" value="{{if .Form}}{{.Form.Title}}{{end}}" placeholder="For example, Customer feedback" required>
 
       <label for="question">New question</label>
       <textarea id="question" name="question" rows="3" placeholder="Write a question for your respondents" required></textarea>
@@ -38,10 +42,10 @@
     </form>
 
     <div class="page-actions">
-      <form action="/displayForm?id={{.ID}}" method="post">
+      <form action="/displayForm?id={{.Form.ID}}" method="post">
         <button class="button-secondary" type="submit">Preview form</button>
       </form>
-      <form action="/startFromTemplate?id={{.ID}}" method="post">
+      <form action="/startFromTemplate?id={{.Form.ID}}" method="post">
         <button class="button-secondary" type="submit">Start from template</button>
       </form>
     </div>

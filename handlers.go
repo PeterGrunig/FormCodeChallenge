@@ -1,16 +1,29 @@
 package main
 
-
 import (
-	"net/http"
+	_ "embed"
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
-	"strconv"
 	"math/rand"
-	"fmt"
-	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
+//go:embed data/local_templates.json
+var localTemplateJSON []byte
+
+type localTemplateBundle struct {
+	Questions []templateQuestion `json:"questions"`
+}
+
+type createFormPageData struct {
+	Form   *Form
+	Notice string
+}
 
 // Handler for the home page
 // Generates the home page template
@@ -20,7 +33,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	
+
 	err = ts.Execute(w, Store.Forms)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -46,21 +59,19 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 		Store.Forms[id] = form
 		log.Println("Created new form with ID:", form.ID)
 	}
-	
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, Store.Forms[id])
+	err = ts.Execute(w, createFormPageData{Form: Store.Forms[id]})
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	
 }
 
 //Creates a new form and adds it to the store
@@ -77,8 +88,8 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 	// If not, create a new one.
 	form := Store.Forms[id]
 	if form == nil {
-    	form = &Form{ID: id, Title: title}
-    	Store.Forms[id] = form
+		form = &Form{ID: id, Title: title}
+		Store.Forms[id] = form
 		log.Println("Created new form with ID:", form.ID)
 	}
 
@@ -88,13 +99,13 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, form)
+	err = ts.Execute(w, createFormPageData{Form: form})
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -102,25 +113,24 @@ func createFormPost(w http.ResponseWriter, r *http.Request) {
 
 // Handler for displaying a form
 func displayForm(w http.ResponseWriter, r *http.Request) {
-	
-	
+
 	id, err := strconv.Atoi(r.FormValue("id"))
 	printForms(Store.Forms[id])
 	if err != nil {
 		http.Error(w, "Invalid form ID", http.StatusBadRequest)
 		return
 	}
-	
+
 	ts, err := template.ParseFiles("templates/displayform.html")
 
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, Store.Forms[id])
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -134,13 +144,13 @@ func respondToForm(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles("templates/respondToForm.html")
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, Store.Forms[id])
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -163,12 +173,11 @@ func respondToFormPost(w http.ResponseWriter, r *http.Request) {
 		key := "responses[" + strconv.Itoa(i) + "]"
 		response := r.FormValue(key)
 		form.Questions[i].Response = append(form.Questions[i].Response, response)
-    }
+	}
 
 	http.Redirect(w, r, "/home", http.StatusSeeOther)
 
 }
-
 
 // Handler for viewing responses to a form
 func viewResponses(w http.ResponseWriter, r *http.Request) {
@@ -186,13 +195,13 @@ func viewResponses(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles("templates/viewresponses.html")
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, form)
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -206,53 +215,98 @@ func startFromTemplate(w http.ResponseWriter, r *http.Request) {
 
 	form := Store.Forms[id]
 	if form == nil {
-    	form = &Form{ID: id, Title: "New Form from Template"}
-    	Store.Forms[id] = form
+		form = &Form{ID: id, Title: "New Form from Template"}
+		Store.Forms[id] = form
 		log.Println("Created new form with ID:", form.ID)
 	}
 
 	form.Title = "New Form from Template"
 
-	// Get three sameple questions to add to the form
-	for i := 0; i < 3; i++ {
-		resp, err := http.Get("https://uselessfacts.jsph.pl/api/v2/facts/random?language=en")
+	questions, apiErr := fetchTemplateQuestions()
+	notice := ""
+	if apiErr != nil {
+		log.Printf("template API failed; using local template bundle: %v", apiErr)
+		questions, err = loadLocalTemplateQuestions()
 		if err != nil {
-			http.Error(w, "Failed to fetch random fact" + err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Failed to load local templates: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-        	fmt.Println("API error:", resp.Status)
-        	return
-    	}
-
-		var fact templateQuestion
-		err = json.NewDecoder(resp.Body).Decode(&fact)
-		if err != nil {
-			http.Error(w, "Failed to decode API response" + err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		form.Questions = append(form.Questions, Questions{Question: fact.Question})
+		notice = "The template API is unavailable. Local template questions are being used instead."
 	}
+
+	form.Questions = append(form.Questions, questions...)
 
 	ts, err := template.ParseFiles("templates/createform.html")
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, form)
+	err = ts.Execute(w, createFormPageData{Form: form, Notice: notice})
 	if err != nil {
-		http.Error(w, "Internal Server Error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 }
 
+func fetchTemplateQuestions() ([]Questions, error) {
+	client := &http.Client{Timeout: 5 * time.Second}
+	questions := make([]Questions, 0, 3)
+
+	for i := 0; i < 3; i++ {
+		resp, err := client.Get("https://uselessfacts.jsph.pl/api/v2/facts/random?language=en")
+		if err != nil {
+			return nil, err
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, fmt.Errorf("template API returned %s", resp.Status)
+		}
+
+		var fact templateQuestion
+		decodeErr := json.NewDecoder(resp.Body).Decode(&fact)
+		resp.Body.Close()
+		if decodeErr != nil {
+			return nil, fmt.Errorf("decode template API response: %w", decodeErr)
+		}
+
+		question := strings.TrimSpace(fact.Question)
+		if question == "" {
+			return nil, fmt.Errorf("template API returned an empty question")
+		}
+		questions = append(questions, Questions{Question: question})
+	}
+
+	return questions, nil
+}
+
+func loadLocalTemplateQuestions() ([]Questions, error) {
+	var bundle localTemplateBundle
+	if err := json.Unmarshal(localTemplateJSON, &bundle); err != nil {
+		return nil, fmt.Errorf("decode local template bundle: %w", err)
+	}
+	if len(bundle.Questions) == 0 {
+		return nil, fmt.Errorf("local template bundle contains no questions")
+	}
+
+	questions := make([]Questions, 0, len(bundle.Questions))
+	for _, item := range bundle.Questions {
+		question := strings.TrimSpace(item.Question)
+		if question != "" {
+			questions = append(questions, Questions{Question: question})
+		}
+	}
+	if len(questions) == 0 {
+		return nil, fmt.Errorf("local template bundle contains no usable questions")
+	}
+
+	return questions, nil
+}
+
 // Used to debug the forms
-func printForms( form *Form) {
+func printForms(form *Form) {
 	log.Println("Form ID:", form.ID)
 	log.Println("Form Title:", form.Title)
 	log.Println("Form Questions:")

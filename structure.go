@@ -5,6 +5,9 @@ package main
 type Questions struct {
 	Question string
 	Response []string
+	Order int 
+	MultiplyChoise bool
+	Required bool
 }
 
 // Main struct for the form

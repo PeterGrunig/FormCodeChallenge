@@ -36,6 +36,7 @@ main {
 h1 { margin: 0; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.055em; }
 h2 { margin: 0 0 15px; font-size: 1.1rem; line-height: 1.5; }
 .intro { max-width: 560px; margin: 10px 0 28px; color: #667085; line-height: 1.65; }
+.notice { margin: 0 0 22px; padding: 13px 16px; border: 1px solid #f0d28a; border-radius: 10px; background: #fff8e6; color: #76520c; line-height: 1.5; }
 
 .forms-panel, .panel, .question-card {
   border: 1px solid #e8ebf2;
