@@ -216,25 +216,25 @@ func startFromTemplate(w http.ResponseWriter, r *http.Request) {
 	// Get three sameple questions to add to the form
 	for i := 0; i < 3; i++ {
 		resp, err := http.Get("https://uselessfacts.jsph.pl/api/v2/facts/random?language=en")
-	if err != nil {
-		http.Error(w, "Failed to fetch random fact" + err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
+		if err != nil {
+			http.Error(w, "Failed to fetch random fact" + err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-        fmt.Println("API error:", resp.Status)
-        return
-    }
+		if resp.StatusCode != http.StatusOK {
+        	fmt.Println("API error:", resp.Status)
+        	return
+    	}
 
-	var fact templateQuestion
-	err = json.NewDecoder(resp.Body).Decode(&fact)
-	if err != nil {
-		http.Error(w, "Failed to decode API response" + err.Error(), http.StatusInternalServerError)
-		return
-	}
+		var fact templateQuestion
+		err = json.NewDecoder(resp.Body).Decode(&fact)
+		if err != nil {
+			http.Error(w, "Failed to decode API response" + err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	form.Questions = append(form.Questions, Questions{Question: fact.Question})
+		form.Questions = append(form.Questions, Questions{Question: fact.Question})
 	}
 
 	ts, err := template.ParseFiles("templates/createform.html")
